@@ -25,13 +25,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(customizer -> customizer.disable()); // disable csrf protection
-        http.authorizeHttpRequests(request -> request.anyRequest().authenticated()); // all requests will be
-                                                                                     // authenticated
+        http.authorizeHttpRequests(request -> request.requestMatchers("/h2-console/**").permitAll()
+                .anyRequest().authenticated());
         // http.formLogin(Customizer.withDefaults());
         http.httpBasic(Customizer.withDefaults());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        // means requests will be statelessso with all requests we have to pass session
-        // / login creds
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
         return http.build();
     }
 
