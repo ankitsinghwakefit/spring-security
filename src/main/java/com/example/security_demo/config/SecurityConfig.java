@@ -13,6 +13,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -46,13 +48,21 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         // here we define our user details service
         // we can fetch user details from database, file, etc
-        UserDetails user1 = User.withUsername("user1").password("{noop}password").roles("USER").build();
-        UserDetails admin1 = User.withUsername("admin1").password("{noop}password").roles("ADMIN").build();
+        UserDetails user1 = User.withUsername("user1").password(getPasswordEncoder().encode("password"))
+                .roles("USER")
+                .build();
+        UserDetails admin1 = User.withUsername("admin1").password(getPasswordEncoder().encode("password"))
+                .roles("ADMIN").build();
 
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
         // return new InMemoryUserDetailsManager(user1, admin1);
         jdbcUserDetailsManager.createUser(user1);
         jdbcUserDetailsManager.createUser(admin1);
         return jdbcUserDetailsManager;
+    }
+
+    @Bean
+    public PasswordEncoder getPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
